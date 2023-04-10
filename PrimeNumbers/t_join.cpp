@@ -363,7 +363,7 @@ ulong t_join_umwait_noloop::join(int inputIndex, int threadId, bool* wasHardWait
         respin:
             _umonitor((void*)&join_struct.lock_color);
             int64_t tsc = __rdtsc();
-            _umwait(is_low_power ? 0 : 1, tsc + umwait_cycles);
+            _umwait(is_low_power ? 0 : 1, tsc + tsc_offset(umwait_cycles));
             totalIterations += 1;
 
             HARD_WAIT();
@@ -396,8 +396,9 @@ ulong t_join_umwait_loop::join(int inputIndex, int threadId, bool* wasHardWait, 
                     PRINT_SOFT_WAIT("%d. %llu iterations.", threadId, inputIndex, totalIterations);
                     break;
                 }
+
                 int64_t tsc = __rdtsc();
-                _umwait(is_low_power ? 0 : 1, tsc + umwait_cycles);
+                _umwait(is_low_power ? 0 : 1, tsc + tsc_offset(umwait_cycles));
             }
 
             totalIterations += j;
@@ -433,7 +434,7 @@ ulong t_join_umwait_loop_soft_wait_only::join(int inputIndex, int threadId, bool
                     break;
                 }
                 int64_t tsc = __rdtsc();
-                _umwait(is_low_power ? 0 : 1, tsc + umwait_cycles);
+                _umwait(is_low_power ? 0 : 1, tsc + tsc_offset(umwait_cycles));
             }
 
             totalIterations += j;
@@ -470,7 +471,7 @@ ulong t_join_umwait_noloop_soft_wait_only::join(int inputIndex, int threadId, bo
         respin:
             _umonitor((void*)&join_struct.lock_color);
             int64_t tsc = __rdtsc();
-            _umwait(is_low_power ? 0 : 1, tsc + umwait_cycles);
+            _umwait(is_low_power ? 0 : 1, tsc + tsc_offset(umwait_cycles));
             totalIterations += 1;
 
             // avoid race due to the thread about to reset the event (occasionally) being preempted before ResetEvent()

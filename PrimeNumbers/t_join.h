@@ -155,6 +155,15 @@ public:
         }
     }
 
+    const unsigned long long TSC_FREQUENCY_IN_HZ = 2e9;
+
+    unsigned long long tsc_offset(int microseconds)
+    {
+        double cycles_per_us = TSC_FREQUENCY_IN_HZ * 1e-6;
+        double cycles_to_wait = (double) microseconds * cycles_per_us;
+        return (unsigned long long) cycles_to_wait;
+    }
+
     __forceinline void restart(int threadId, int numberIndex, bool isLastIteration)
     {
         //printf("%d. Restart for Thread# %d\n", numberIndex, threadId);
