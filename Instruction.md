@@ -59,39 +59,45 @@ For ease of use, I've laid out the actual commands to run...
 
 For `1us` wait time...
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 1 --wait_count 1 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 1 --wait_count 1 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 7 --wait_count 1 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 2 --wait_count 1 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 8 --wait_count 1 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 7 --wait_count 1 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 9 --wait_count 1 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 8 --wait_count 1 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 10 --wait_count 1 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 9 --wait_count 1 --umwait_power_state 0`
+
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 10 --wait_count 1 --umwait_power_state 0`
 
 For `10us` wait time...
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 1 --wait_count 10 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 1 --wait_count 10 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 7 --wait_count 10 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 2 --wait_count 10 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 8 --wait_count 10 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 7 --wait_count 10 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 9 --wait_count 10 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 8 --wait_count 10 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 10 --wait_count 10 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 9 --wait_count 10 --umwait_power_state 0`
+
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 10 --wait_count 10 --umwait_power_state 0`
 
 For `1ms` wait time...
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 1 --wait_count 1000 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 1 --wait_count 1000 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 7 --wait_count 1000 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 2 --wait_count 1000 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 8 --wait_count 1000 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 7 --wait_count 1000 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 9 --wait_count 1000 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 8 --wait_count 1000 --umwait_power_state 0`
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 20000 --complexity 20 --join_type 10 --wait_count 1000 --umwait_power_state 0`
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 9 --wait_count 1000 --umwait_power_state 0`
+
+`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 10 --wait_count 1000 --umwait_power_state 0`
 
 
 

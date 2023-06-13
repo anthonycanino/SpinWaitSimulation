@@ -11,6 +11,7 @@
 #include "ProcessorInfo.h"
 #include "common.h"
 #include "t_join.h"
+#include <cstring>
 
 const char* str_join_types[] =
 {
@@ -291,6 +292,7 @@ private:
     int COMPLEXITY = -1;
     int JOIN_TYPE = -1;
     bool setThreadHighPri = true;
+    char GEN_FILE[512];
 
     void DiffWakeTime(ulong hardWaitWakeTime, ulong softWaitWakeTime, ulong* diff, char* diffCh)
     {
@@ -309,6 +311,11 @@ private:
     int argumentName = 0;                   \
     bool argumentName##_used = false;
 
+
+#define ARGS_STR(argumentName)              \
+    char argumentName[512];                 \
+    bool argumentName##_used = false;
+
 #define VALIDATE_AND_SET(paramName)                                 \
         if (_strcmpi(parameterName,"--" # paramName) == 0)          \
         {                                                           \
@@ -318,6 +325,19 @@ private:
                 PrintUsageAndExit();                                \
             }                                                       \
             paramName = atoi(parameterValue);                       \
+            paramName##_used = true;                                \
+            continue;                                               \
+        }
+
+#define VALIDATE_AND_SET_STR(paramName)                                 \
+        if (_strcmpi(parameterName,"--" # paramName) == 0)          \
+        {                                                           \
+            if (paramName##_used)                                   \
+            {                                                       \
+                printf("--" # paramName ## "already specified.\n"); \
+                PrintUsageAndExit();                                \
+            }                                                       \
+            strcpy(paramName, parameterValue);                      \
             paramName##_used = true;                                \
             continue;                                               \
         }
@@ -332,6 +352,7 @@ private:
         ARGS(affi);
         ARGS(thread_priority);
         ARGS(ht);
+        ARGS_STR(gen_file);
 
         if (argc == 1)
         {
@@ -363,6 +384,7 @@ private:
             VALIDATE_AND_SET(thread_priority);
             VALIDATE_AND_SET(ht);
             VALIDATE_AND_SET(affi);
+            VALIDATE_AND_SET_STR(gen_file);
 
             printf("Unknown parameter: '%s'\n", parameterName);
             PrintUsageAndExit();
@@ -494,6 +516,16 @@ private:
         {
             setThreadHighPri = true;
         }
+
+
+        if (gen_file_used)
+        {
+            strcpy(GEN_FILE, gen_file);
+        }
+        else
+        {
+            memset(GEN_FILE, 0, 512);
+        }
     }
 
     void PrintUsageAndExit()
@@ -504,6 +536,7 @@ private:
         printf("--ht [0|1]: If 1 then Hyperthread is on else, it is not. If the input doesn't match the machine configuration, then the program will throw an error. \n");
         printf("\n");
         printf("Options:\n");
+        printf("--gen_file <F>: Use pregenerated numbers from file F.\n\n");
         printf("--thread_count <N>: Number of threads to use. By default it will use number of cores available in all groups.\n\n");
         printf("--thread_priority [0|1]: If 1 (default), create threads with high priority otherwise create them with normal priority.\n\n");
         printf("--spin_count <N>: If specified, the number of iterations to spin before going to hardwait. Default= 128000.\n\n");
@@ -613,55 +646,136 @@ public:
             break;
         }
 
-        // Create all the threads
-        for (int i = 0; i < PROCESSOR_COUNT; i++)
+        if (GEN_FILE[0] != 0)
         {
-            ThreadInput* tInput = new ThreadInput(i, INPUT_COUNT);
-            if (tInput != NULL)
+            printf("Using gen_file %s\n", GEN_FILE);
+            // Load pre generated numbers
+            FILE *f = fopen(GEN_FILE, "r");
+            if (!f) 
             {
-                tInput->input = (ulong*)malloc((sizeof(ulong) * INPUT_COUNT));
-                for (int i = 0; i < INPUT_COUNT; i++)
+                printf("error opening file %s\n", GEN_FILE);
+                exit(1);
+            }
+
+            int pc, ic;
+            if (!fscanf(f, "%d %d\n", &pc, &ic)) 
+            {
+                perror("fscanf");
+                exit(1);
+            }
+            if (pc != PROCESSOR_COUNT || ic != INPUT_COUNT)
+            {
+                printf("error: mismatched processor count %d:%d or input count %d:%d\n", pc, PROCESSOR_COUNT, ic, INPUT_COUNT);
+                exit(1);
+            }
+
+            // Create all the threads
+            for (int j = 0; j < PROCESSOR_COUNT; j++)
+            {
+                printf("Reading %d\n", j);
+                ThreadInput* tInput = new ThreadInput(j, INPUT_COUNT);
+                if (tInput != NULL)
                 {
-                    if (COMPLEXITY == 0)
+                    tInput->input = (ulong*)malloc((sizeof(ulong) * INPUT_COUNT));
+                    for (int i = 0; i < INPUT_COUNT; i++)
                     {
-                        tInput->input[i] = i;
-                    }
-                    else
-                    {
-                        //n = (float)rand() / RAND_MAX;
-                        //tInput->input[i] = (ulong)(n * (100 + pow(2, COMPLEXITY)));
-                        ulong num = (ulong)pow(2, COMPLEXITY);
-                        tInput->input[i] = rand() % num + 1;
-                        //printf("t %d: num %I64d\n", i, tInput->input[i]);
+                        int tid, num;
+                        if (!fscanf(f, "%d %d\n", &tid, &num)) 
+                        {
+                            perror("fscanf");
+                            exit(1);
+                        }
+                        if (tid != j)
+                        {
+                            printf("error: read '%d %d' but expected id %d\n", tid, num, j);
+                            exit(1);
+                        }
+                        tInput->input[i] = num;
+
                     }
                 }
+                else {
+                    assert(!"Failed to allocate tInput");
+                }
+
+                DWORD tid;
+                threadHandles[j] = CreateThread(
+                    NULL,                           // default security attributes
+                    0,                              // use default stack size
+                    ThreadWorker,                   // thread function name
+                    (LPVOID)tInput,                 // argument to thread function
+                    CREATE_SUSPENDED,
+                    &tid);                          // returns the thread identifier
+
+                threadIds[j] = tid;
+                threadInputs[j] = tInput;
+
+                wchar_t buffer[15];
+                wsprintf(buffer, L"Thread# %d", j);
+
+                SetThreadDescription(threadHandles[j], buffer);
+
+                if (setThreadHighPri)
+                {
+                    SetThreadPriority(threadHandles[j], THREAD_PRIORITY_HIGHEST);
+                }
             }
-            else {
-                assert(!"Failed to allocate tInput");
-            }
 
-            DWORD tid;
-            threadHandles[i] = CreateThread(
-                NULL,                           // default security attributes
-                0,                              // use default stack size
-                ThreadWorker,                   // thread function name
-                (LPVOID)tInput,                 // argument to thread function
-                CREATE_SUSPENDED,
-                &tid);                          // returns the thread identifier
-
-            threadIds[i] = tid;
-            threadInputs[i] = tInput;
-
-            wchar_t buffer[15];
-            wsprintf(buffer, L"Thread# %d", i);
-
-            SetThreadDescription(threadHandles[i], buffer);
-
-            if (setThreadHighPri)
+            printf("Running all threads\n");
+        }
+        else
+        {
+            // Create all the threads
+            for (int i = 0; i < PROCESSOR_COUNT; i++)
             {
-                SetThreadPriority(threadHandles[i], THREAD_PRIORITY_HIGHEST);
+                ThreadInput* tInput = new ThreadInput(i, INPUT_COUNT);
+                if (tInput != NULL)
+                {
+                    tInput->input = (ulong*)malloc((sizeof(ulong) * INPUT_COUNT));
+                    for (int i = 0; i < INPUT_COUNT; i++)
+                    {
+                        if (COMPLEXITY == 0)
+                        {
+                            tInput->input[i] = i;
+                        }
+                        else
+                        {
+                            //n = (float)rand() / RAND_MAX;
+                            //tInput->input[i] = (ulong)(n * (100 + pow(2, COMPLEXITY)));
+                            ulong num = (ulong)pow(2, COMPLEXITY);
+                            tInput->input[i] = rand() % num + 1;
+                            printf("num: %d t %d: num %I64d\n", num, i, tInput->input[i]);
+                        }
+                    }
+                }
+                else {
+                    assert(!"Failed to allocate tInput");
+                }
+
+                DWORD tid;
+                threadHandles[i] = CreateThread(
+                    NULL,                           // default security attributes
+                    0,                              // use default stack size
+                    ThreadWorker,                   // thread function name
+                    (LPVOID)tInput,                 // argument to thread function
+                    CREATE_SUSPENDED,
+                    &tid);                          // returns the thread identifier
+
+                threadIds[i] = tid;
+                threadInputs[i] = tInput;
+
+                wchar_t buffer[15];
+                wsprintf(buffer, L"Thread# %d", i);
+
+                SetThreadDescription(threadHandles[i], buffer);
+
+                if (setThreadHighPri)
+                {
+                    SetThreadPriority(threadHandles[i], THREAD_PRIORITY_HIGHEST);
+                }
             }
         }
+
 
         PRINT_STATS("setting affinity for %d threads, %d cpu groups", PROCESSOR_COUNT, PROCESSOR_GROUP_COUNT);
 
