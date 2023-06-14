@@ -37,14 +37,21 @@ In `PrimeNumbers`, there is a file called `res.csv`. Please remove this file bef
 We will evaluate the following parameters
 
 - `complexity` , which determines the computation of prime numbers per thread. A higher results in average longer wait times per thread before moving on to the next prime number computation.
-
-- `thread_count`, which determines the number of threads that will run computations.
+ - we will run with `{20}`
 
 - `join_type`, which determines the implementation of the "spin lock"
+  - we will run with `{1, 2, 7, 8, 9, 10}`
 
 - `wait_count`, which determines how long a thread will wait before going into a hard sleep (for umwait, it is the associated wait time for wake, in offset of TSC)
+  - we will run with `{1, 2, 5, 10}`
 
 - `umwait_power_state`, which determines the C0 state for tpause/umwait
+
+  - we will run with `{0, 1}`
+
+- `gen_file`, which loads a pre-generated list of prime numbers. the input_count and thread_count must match that in the file.
+
+  - we will point to the supplied `num.txt` file
 
 As a first pass, lets only vary the `join_type` and `wait_count`. 
 
@@ -57,55 +64,35 @@ We want to simulate a `1us`, `10us`, and `1ms` wait time, so for wait_count we w
 For ease of use, I've laid out the actual commands to run...
 
 
-For `1us` wait time...
+The following is the full set of commands using a wait_count as 1 (which is 1us). 
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 1 --wait_count 1 --umwait_power_state 0`
+```powershell
+# With umwait powerstate 0
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 1 --wait_count 1 --umwait_power_state 0 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 2 --wait_count 1 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 2 --wait_count 1 --umwait_power_state 0 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 7 --wait_count 1 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 7 --wait_count 1 --umwait_power_state 0 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 8 --wait_count 1 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 8 --wait_count 1 --umwait_power_state 0 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 9 --wait_count 1 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 9 --wait_count 1 --umwait_power_state 0 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 10 --wait_count 1 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 10 --wait_count 1 --umwait_power_state 0 --gen_file num.txt
 
-For `10us` wait time...
+# With umwait powerstate 1
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 1 --wait_count 1 --umwait_power_state 1 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 1 --wait_count 10 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 2 --wait_count 1 --umwait_power_state 1 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 2 --wait_count 10 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 7 --wait_count 1 --umwait_power_state 1 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 7 --wait_count 10 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 8 --wait_count 1 --umwait_power_state 1 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 8 --wait_count 10 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 9 --wait_count 1 --umwait_power_state 1 --gen_file num.txt
 
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 9 --wait_count 10 --umwait_power_state 0`
-
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 10 --wait_count 10 --umwait_power_state 0`
-
-For `1ms` wait time...
-
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 1 --wait_count 1000 --umwait_power_state 0`
-
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 2 --wait_count 1000 --umwait_power_state 0`
-
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 7 --wait_count 1000 --umwait_power_state 0`
-
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 8 --wait_count 1000 --umwait_power_state 0`
-
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 9 --wait_count 1000 --umwait_power_state 0`
-
-`x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 20 --join_type 10 --wait_count 1000 --umwait_power_state 0`
+x64/Release/PrimeNumbers.exe --ht 1 --input_count 100000 --complexity 15 --join_type 10 --wait_count 1 --umwait_power_state 1 --gen_file num.txt
+```
 
 
-
-
-
-
-
-
-
-
-
+The entire block of commands must be repeated, but for different `wait_count`, which would be `2`, `5`, and `10` for `2us`, `5us` and `10us` respectively.

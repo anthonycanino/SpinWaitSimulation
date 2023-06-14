@@ -672,7 +672,6 @@ public:
             // Create all the threads
             for (int j = 0; j < PROCESSOR_COUNT; j++)
             {
-                printf("Reading %d\n", j);
                 ThreadInput* tInput = new ThreadInput(j, INPUT_COUNT);
                 if (tInput != NULL)
                 {
@@ -744,7 +743,6 @@ public:
                             //tInput->input[i] = (ulong)(n * (100 + pow(2, COMPLEXITY)));
                             ulong num = (ulong)pow(2, COMPLEXITY);
                             tInput->input[i] = rand() % num + 1;
-                            printf("num: %d t %d: num %I64d\n", num, i, tInput->input[i]);
                         }
                     }
                 }
